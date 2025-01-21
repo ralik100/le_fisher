@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
-import psycopg2
+import database
+import functions
 
 load_dotenv()
 
@@ -13,24 +14,24 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+conn, cur = database.connect_to_database()
+
 @bot.event
 async def on_ready():
-    print(f'Zalogowano jako {bot.user}')
+
+    database.create_table(conn, cur)
+    database.fill_table(conn, cur)
+
+    print(f'Zalogowano jako {bot.user.name}')
 
 @bot.command()
-async def asd(ctx):
-    print(f'sent message in channel: {ctx.channel}')
-    await ctx.send("ns")
+async def fishing(ctx):
+    await ctx.channel.send(functions.fishing(cur))
 
 @bot.event
-async def on_message(message):
-   
-    if message.author == bot.user:
-        return
-
-    if message.content.startswith('nehring'):
-        await message.channel.send(':)')
-
-    await bot.process_commands(message)
+async def on_close():
+    database.close_connection(conn,cur)
 
 bot.run(token)
+
+
