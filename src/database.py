@@ -45,6 +45,55 @@ def fill_fish_table(conn, cur):
     else:
         print(f'table is filled')
 
+def create_fisherman_table(conn, cur):
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS fishermans(
+        id SERIAL PRIMARY KEY,
+        discord_id VARCHAR(255) UNIQUE NOT NULL,
+        username VARCHAR(255),
+        experience INT DEFAULT 0,
+        total_fishes INT DEFAULT 0
+        );
+        """)
+    conn.commit()
+
+
+def add_fisherman(conn, cur, author_id, author_username):
+
+
+    if not isFishermanExisting(cur,author_id):
+
+        cur.execute("""
+            INSERT INTO fishermans (discord_id, username) VALUES
+            (%s, %s)
+            ON CONFLICT DO NOTHING;
+                    """, (author_id, author_username))
+        conn.commit()
+
+
+def isFishermanExisting(cur, author_id):
+
+    cur.execute("""
+        SELECT * FROM fishermans where discord_id = %s;
+                """, (author_id,))
+
+    fisherman = cur.fetchall()
+
+    return fisherman != []
+
+def fisherman_gain_experience(conn, cur, author_id, experience):
+
+    if isFishermanExisting(cur, author_id):
+        cur.execute("""
+            UPDATE fishermans
+            SET experience = experience + %s,
+                total_fishes = total_fishes + 1
+            WHERE discord_id = %s;
+        """, (experience, author_id))  
+
+        conn.commit()
+
 def close_connection(conn, cur):
     print('connection is closed')
     cur.close()
