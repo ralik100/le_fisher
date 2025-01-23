@@ -19,14 +19,19 @@ conn, cur = database.connect_to_database()
 @bot.event
 async def on_ready():
 
-    database.create_table(conn, cur)
-    database.fill_table(conn, cur)
+    database.create_fish_table(conn, cur)
+    database.fill_fish_table(conn, cur)
 
     print(f'Zalogowano jako {bot.user.name}')
 
 @bot.command()
 async def fishing(ctx):
     await ctx.channel.send(functions.fishing(cur))
+
+@bot.command()
+async def me(ctx):
+    users=discord.utils.get(bot.users)
+    await ctx.channel.send(users)
 
 @bot.event
 async def on_close():
