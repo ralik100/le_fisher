@@ -6,15 +6,6 @@ def connect_to_database():
 
     return conn, cur
 
-def isTableEmpty(cur,dbname):
-
-    cur.execute(f"""
-    SELECT * FROM {dbname}
-                """)
-    
-    values=cur.fetchall()
-    return values==[]
-
 def create_fish_table(conn, cur):
 
     cur.execute("""CREATE TABLE IF NOT EXISTS fishes(
@@ -53,46 +44,22 @@ def create_fisherman_table(conn, cur):
         discord_id VARCHAR(255) UNIQUE NOT NULL,
         username VARCHAR(255),
         experience INT DEFAULT 0,
-        total_fishes INT DEFAULT 0
+        total_fishes INT DEFAULT 0,
+        rank VARCHAR(255)
         );
         """)
     conn.commit()
 
+def isTableEmpty(cur,dbname):
 
-def add_fisherman(conn, cur, author_id, author_username):
-
-
-    if not isFishermanExisting(cur,author_id):
-
-        cur.execute("""
-            INSERT INTO fishermans (discord_id, username) VALUES
-            (%s, %s)
-            ON CONFLICT DO NOTHING;
-                    """, (author_id, author_username))
-        conn.commit()
+    cur.execute(f"""
+        SELECT * FROM {dbname}
+                """)
+    
+    values=cur.fetchall()
+    return values==[]
 
 
-def isFishermanExisting(cur, author_id):
-
-    cur.execute("""
-        SELECT * FROM fishermans where discord_id = %s;
-                """, (author_id,))
-
-    fisherman = cur.fetchall()
-
-    return fisherman != []
-
-def fisherman_gain_experience(conn, cur, author_id, experience):
-
-    if isFishermanExisting(cur, author_id):
-        cur.execute("""
-            UPDATE fishermans
-            SET experience = experience + %s,
-                total_fishes = total_fishes + 1
-            WHERE discord_id = %s;
-        """, (experience, author_id))  
-
-        conn.commit()
 
 def close_connection(conn, cur):
     print('connection is closed')

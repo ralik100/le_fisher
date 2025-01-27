@@ -27,28 +27,38 @@ async def on_ready():
 
 @bot.command()
 async def fishing(ctx):
-
+    """Pozwala złowić rybke"""
     discord_user_id = str(ctx.author.id)
     discord_user_name = str(ctx.author)
 
 
-    database.add_fisherman(conn, cur, discord_user_id, discord_user_name)
+    functions.add_fisherman(conn, cur, discord_user_id, discord_user_name)
     fish, experience = functions.fishing(cur)
-    database.fisherman_gain_experience(conn, cur, discord_user_id, experience)
+    functions.fisherman_gain_experience(conn, cur, discord_user_id, experience)
 
-    await ctx.channel.send(f'Udało Ci się złowić: {fish} i zdobyć {experience} doświadczenia.')
 
-@bot.command()
-async def me(ctx):
-    users=discord.utils.get(bot.users)
-    await ctx.channel.send(ctx.author.id)
+    await ctx.channel.send(f'Udało Ci się złowić: **{fish}** i zdobyć {experience} doświadczenia.')
+
+    has_new_rank, new_rank = functions.get_new_rank(cur, discord_user_id)
+
+    print(has_new_rank)
+    print(new_rank)  
+
+    if has_new_rank:
+
+        functions.update_fisherman_rank(conn, cur, discord_user_id, new_rank)
+
+        await ctx.channel.send(f'Gratulacje! Udało Ci się awansować i zdobyć nową rangę = *{new_rank}*')
+
+    
+
 
 @bot.command()
 async def ranking(ctx):
     players=functions.get_rankings(cur)
     i=0
     for player in players:
-        await ctx.channel.send(f'{i+1}. {player[0]}, exp = {player[1]}, złowione ryby = {player[2]}')
+        await ctx.channel.send(f'{i+1}. **{player[0]}** (*{player[3]}*), exp = {player[1]}, złowione ryby = {player[2]}')
         i+=1
         
 
