@@ -41,8 +41,6 @@ async def fishing(ctx):
 
     has_new_rank, new_rank = functions.get_new_rank(cur, discord_user_id)
 
-    print(has_new_rank)
-    print(new_rank)  
 
     if has_new_rank:
 
@@ -55,6 +53,7 @@ async def fishing(ctx):
 
 @bot.command()
 async def ranking(ctx):
+    """Wyświetla ranking graczy"""
     players=functions.get_rankings(cur)
     i=0
     for player in players:

@@ -103,8 +103,11 @@ def get_new_rank(cur, author_id):
 
     current_rank_index = next(i for i, r in enumerate(ranks) if r[0] == rank)
     for i in range(current_rank_index + 1, len(ranks)):
-        if exp < ranks[i][1]: 
-            return True, ranks[i - 1][0]
+        if exp < ranks[i][1]:
+            if i != current_rank_index+1:  
+                return True, ranks[i - 1][0]
+            else:
+                return False, None
 
     return False, None
          
